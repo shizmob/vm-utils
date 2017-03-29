@@ -1,0 +1,40 @@
+#!/bin/sh
+set -e
+
+rootdir=/etc/vm
+name="$1"
+. "$rootdir/utils.sh"
+
+# Read files.
+file=$(basename "$name.conf")
+conf=$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")
+params=$(resolve_includes "$rootdir/include" "$rootdir/machines.d/$file")
+
+# Set configuration
+while read -r k v ; do
+	eval "conf_$k=$v"
+done <<EOF
+$conf
+EOF
+
+# Expand parameters.
+params=$(expand "$params")
+
+# Build command line.
+set -- qemu-system-x86_64
+
+while read -r k v ; do
+        set -- "$@" "-$k"
+	if test -n "$v" ; then
+		set -- "$@" "$v"
+	fi
+done <<EOF
+$params
+EOF
+
+# Setup interface.
+tapdev=$("$rootdir/scripts/ifup" "$name" vm-"$name")
+test $? -ne 0 && exit 1
+
+# Launch qemu.
+exec "$@" 3<>"$tapdev"

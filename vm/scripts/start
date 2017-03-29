@@ -1,0 +1,6 @@
+#!/bin/sh
+
+name="$1"
+rootdir=/etc/vm
+
+tmux new-session -ds vm-"$name" "exec $rootdir/scripts/launch $1"

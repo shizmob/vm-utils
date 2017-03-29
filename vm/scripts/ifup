@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e
+
+rootdir=/etc/vm
+name="$1"
+device="$2"
+. "$rootdir/utils.sh"
+
+# Read files
+file=$(basename "$name.conf")
+conf=$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")
+
+# Set configuration
+while read -r k v ; do
+        eval "conf_$k=$v"
+done <<EOF
+$conf
+EOF
+
+if ! test -e /sys/class/net/"$device" ; then
+	ip link add link eth0 name "$device" address "$conf_net_mac" type macvtap mode bridge
+	#sysctl net.ipv6.conf."$device".forwarding=1
+	#ip -6 route add "$conf_net_ipv6" dev "$device"-6
+fi
+echo /dev/tap$(cat /sys/class/net/"$device"/ifindex)

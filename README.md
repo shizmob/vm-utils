@@ -29,6 +29,13 @@ while an IPv6 prefix is delegated to your machine and you have to explicitly rou
   - `launch`: Launch VM in current terminal session and attach to management console; used by `start`
   - `ifup`/`ifup6`/`ifdown`: Network interface management scripts;
 
+## Adding a new VM
+
+1. Add an entry in `machines.d`, see `example.conf` for format;
+2. Add an entry in `conf`, see `example.conf` for format;
+3. Create a new disk: `qemu-img create -f qcow2 /var/vm/disks/<name>qcow2 <size>G`;
+4. Start the VM: `scripts/start <name>`.
+
 ## License
 
 WTFPL; see `LICENSE` for details.

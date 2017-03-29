@@ -7,14 +7,6 @@ name="${device#vm-}"
 name="${name%-*}"
 . "$rootdir/utils.sh"
 
-file=$(basename "$name.conf")
-conf=$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")
-
-# Set configuration
-while read -r k v ; do
-        eval "conf_$k=$v"
-done <<EOF
-$conf
-EOF
+read_conf "$rootdir" "$name"
 
 ip link del "$device"

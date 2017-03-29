@@ -30,3 +30,17 @@ expand() {
 	newline=${newline% }
 	eval "cat <<EOF${newline}${data}${newline}"
 }
+
+read_conf() {
+	local rootdir="$1"
+	local file=$(basename "$2.conf")
+	local conf=$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")
+	local k
+	local v
+
+	while read -r k v ; do
+	        eval "conf_$k=$v"
+	done <<EOF
+$conf
+EOF
+}

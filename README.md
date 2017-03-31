@@ -14,7 +14,7 @@ You're gonna want to have `tmux` and `qemu-system-x86_64` installed, as well as 
 
 ## Setup
 
-These scripts presumes a setup like Online.net, where IPv4s are directly routed to your machine and a macvtap interface can accept them,
+These scripts presume a setup like Online.net, where IPv4s are directly routed to your machine and a macvtap interface can accept them,
 while an IPv6 prefix is delegated to your machine and you have to explicitly route it through a normal tap interface - hence the dual NICs in the VMs.
 
 ## Overview

@@ -9,7 +9,9 @@ I didn't like libvirt.
 ## Installation
 
 Copy the `vm` folder to your `/etc`, or elsewhere and adjust the `rootdir=` statements in the `scripts/` files.
-Optionally, make symlinks for `vm-<script>` to `/etc/vm/scripts/<script>` in your `/usr/local/bin`.
+Optionally, make symlinks for `vm-<script>` to `/etc/vm/scripts/<script>` in your `/usr/local/sbin`,
+and copy `init.rc` to `/etc/init.d/vm` for an OpenRC init script. It can be copied as `vm.<name>` as well to only start a specific VM.
+
 You're gonna want to have `tmux` and `qemu-system-x86_64` installed, as well as KVM (`CONFIG_KVM`) and macvtap (`CONFIG_MACVLAN`) support in your kernel.
 
 ## Setup

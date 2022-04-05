@@ -14,8 +14,7 @@ You're gonna want to have `tmux` and `qemu-system-x86_64` installed, as well as 
 
 ## Setup
 
-These scripts presume a setup like Online.net, where IPv4s are directly routed to your machine and a macvtap interface can accept them,
-while an IPv6 prefix is delegated to your machine and you have to explicitly route it through a normal tap interface - hence the dual NICs in the VMs.
+These scripts presume a setup like Hetzner, where IPv4s and IPv6 ranges are directly routed to your machine and a macvtap interface can accept them.
 
 ## Overview
 
@@ -27,7 +26,7 @@ while an IPv6 prefix is delegated to your machine and you have to explicitly rou
   - `stop`: Stop a VM named by `machines.d/<name>conf`;
   - `attach`: Attach to management console of VM named by `machines.d/<name.conf>`;
   - `launch`: Launch VM in current terminal session and attach to management console; used by `start`
-  - `ifup`/`ifup6`/`ifdown`: Network interface management scripts;
+  - `ifup`/`ifdown`: Network interface management scripts;
 
 ## Adding a new VM
 

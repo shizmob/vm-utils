@@ -6,8 +6,8 @@ device="$1"
 name="${device#vm-}"
 . "$rootdir/utils.sh"
 
-file=$(basename "$name.conf")
-conf=$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")
+file="$(basename "$name.conf")"
+conf="$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")"
 
 # Set configuration
 while read -r k v ; do

@@ -6,9 +6,9 @@ name="$1"
 . "$rootdir/utils.sh"
 
 # Read files.
-file=$(basename "$name.conf")
-conf=$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")
-params=$(resolve_includes "$rootdir/include" "$rootdir/machines.d/$file")
+file="$(basename "$name.conf")"
+conf="$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")"
+params="$(resolve_includes "$rootdir/include" "$rootdir/machines.d/$file")"
 
 # Set configuration
 while read -r k v ; do
@@ -18,7 +18,7 @@ $conf
 EOF
 
 # Expand parameters.
-params=$(expand "$params")
+params="$(expand "$params")"
 
 # Build command line.
 set -- qemu-system-x86_64

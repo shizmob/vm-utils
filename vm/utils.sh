@@ -2,7 +2,7 @@
 
 resolve_includes() {
 	local rootdir="$1"
-	local conf=$(cat "$2")
+	local conf="$(cat "$2")"
 	local k
 	local v
 	test -z "$conf" && exit 1
@@ -29,5 +29,5 @@ expand() {
 	local data="$1"
 	local newline="$(printf '\n ')"
 	newline=${newline% }
-	eval "cat <<EOF${newline}${data}${newline}"
+	eval "cat <<EOF${newline}${data}${newline}EOF"
 }

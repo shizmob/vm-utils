@@ -7,6 +7,7 @@ resolve_includes() {
 	local v
 	test -z "$conf" && exit 1
 
+	conf="$(printf "%s\n" "$conf" | sed -e '/^#/d' | sed -e '/^$/d')"
 	while test "${conf#*!include}" != "$conf" ; do
 	        conf=$(printf "%s\n" "$conf" | while read -r k v; do
         	        case "$k" in
@@ -18,7 +19,7 @@ resolve_includes() {
         	                printf "%s %s\n" "$k" "$v"
 	                        ;;
 	                esac
-	        done)
+	        done | sed -e '/^#/d' -e '/^$/d')
 	done
 
 	echo "$conf"
@@ -29,18 +30,4 @@ expand() {
 	local newline="$(printf '\n ')"
 	newline=${newline% }
 	eval "cat <<EOF${newline}${data}${newline}"
-}
-
-read_conf() {
-	local rootdir="$1"
-	local file=$(basename "$2.conf")
-	local conf=$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")
-	local k
-	local v
-
-	while read -r k v ; do
-	        eval "conf_$k=$v"
-	done <<EOF
-$conf
-EOF
 }

@@ -1,7 +1,7 @@
 #!/sbin/openrc-run
 
 depend() {
-
+	need localmount net
 }
 
 if test "${SVCNAME%%.*}" != "${SVCNAME}"; then
@@ -10,6 +10,7 @@ if test "${SVCNAME%%.*}" != "${SVCNAME}"; then
 	command="vm-launch"
 	command_args="$vm"
 	supervisor=supervise-daemon
+	extra_commands="attach"
 
 	attach() {
 		vm-attach "$vm"

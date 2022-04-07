@@ -2,6 +2,13 @@
 set -e
 
 name="$1"
+rootdir=/etc/vm
 
-tmux kill-session -t vm-"$name"
-ip link del vm-"$name"
+. "$rootdir"/utils.sh
+
+pid=$(getpid "$name")
+if test -z "$pid"; then
+    echo "error: $name is not running" >&2
+    exit 1
+fi
+kill "$pid"

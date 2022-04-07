@@ -5,6 +5,9 @@ rootdir=/etc/vm
 name="$1"
 . "$rootdir/utils.sh"
 
+rundir="$(rundir "$name")"
+consolefile="$(consolefile "$name")"
+
 # Read files.
 file="$(basename "$name.conf")"
 conf="$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")"
@@ -33,20 +36,33 @@ done <<EOF
 $params
 EOF
 
+# Setup infra.
+mkdir -p "$rundir"
+rm -f "$rundir"/*.sock
+
+cleanup() {
+	set +e
+	"$rootdir"/scripts/ifdown 'vm-$name'
+	jobs -p | xargs -r kill
+	rm -r "$rundir"
+	exit
+}
+trap cleanup INT TERM QUIT HUP
+
 # Setup shares.
 if [ -n "$conf_shares" ]; then
-	mkdir -p /run/vm/"$name"
 	set -- "$@" -object memory-backend-memfd,id=mem,size="$param_m",share=on -numa node,memdev=mem
 	while IFS=: read -r tag source; do
+		sockfile="$(virtiofsfile "$name" "$tag")"
 		/usr/lib/qemu/virtiofsd \
-			--socket-path="/run/vm/$name/virtiofs-$tag" \
+			--socket-path="$sockfile" \
 			-o source="$source" \
 			-o cache=always \
 			-o xattr -o posix_acl \
 			-o announce_submounts \
 			-f &
 		set -- "$@" \
-			-chardev socket,id=virtiofs-$tag,path="/run/vm/$name/virtiofs-$tag" \
+			-chardev socket,id=virtiofs-$tag,path="$sockfile" \
 			-device vhost-user-fs-device,chardev=virtiofs-$tag,tag=$tag
 	done <<EOF
 $conf_shares
@@ -58,5 +74,5 @@ tapdev=$("$rootdir/scripts/ifup" vm-"$name")
 test $? -ne 0 && exit 1
 
 # Launch qemu.
-trap "'$rootdir'/scripts/ifdown 'vm-$name'; jobs -p | xargs -r kill" EXIT
 "$@" 3<>"$tapdev"
+cleanup

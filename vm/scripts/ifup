@@ -17,10 +17,13 @@ done <<EOF
 $conf
 EOF
 
+hostif="${conf_net_hostif:-eth0}"
+
 if ! test -e /sys/class/net/"$device" ; then
-	ip link add link eth0 name "$device" address "$conf_net_mac" type macvtap mode bridge
+	ip link add link "$hostif" name "$device" address "$conf_net_mac" type macvtap mode bridge
 	ip link set dev "$device" up
 	sysctl -w net.ipv4.conf."$device".forwarding=1 >/dev/null
 	sysctl -w net.ipv6.conf."$device".forwarding=1 >/dev/null
 fi
+
 echo /dev/tap$(cat /sys/class/net/"$device"/ifindex)

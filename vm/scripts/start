@@ -3,4 +3,14 @@
 name="$1"
 rootdir=/etc/vm
 
-tmux new-session -ds vm-"$name" "exec $rootdir/scripts/launch $1"
+. "$rootdir"/utils.sh
+
+pid=$(getpid "$name")
+if test -n "$pid"; then
+    echo "error: $name is already running" >&2
+    exit 1
+fi
+
+mkdir -p /run/vm/"$name"
+"$rootdir/scripts/launch" "$name" &
+echo $! > /run/vm/"$name"/pid

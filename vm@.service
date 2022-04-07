@@ -1,0 +1,7 @@
+[Unit]
+Description=QEMU VM: %I
+
+[Service]
+Type=exec
+ExecStart=vm-launch %i
+Restart=on-failure

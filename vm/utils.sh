@@ -31,3 +31,33 @@ expand() {
 	newline=${newline% }
 	eval "cat <<EOF${newline}${data}${newline}EOF"
 }
+
+rundir() {
+	echo "/run/vm/$1"
+}
+
+pidfile() {
+	echo "$(rundir "$1")/pid"
+}
+
+consolefile() {
+	echo "$(rundir "$1")/monitor.sock"
+}
+
+virtiofsfile() {
+	echo "$(rundir "$1")/virtiofs-$2.sock"
+}
+
+getpid() {
+	local pidfile="$(pidfile "$1")"
+	if test -f "$pidfile"; then
+		pid="$(cat "$pidfile")"
+		case "$(ps -p "$pid" -o comm 2>/dev/null | tail -n 1)" in
+		qemu*|launch)
+			echo "$pid"
+			return 0
+			;;
+		esac
+	fi
+	return 1
+}

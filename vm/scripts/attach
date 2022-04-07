@@ -3,6 +3,20 @@ set -e
 
 rootdir=/etc/vm
 name="$1"
+
 . "$rootdir/utils.sh"
 
-tmux attach -t vm-"$name"
+sockfile="$(consolefile "$name")"
+if ! test -S "$sockfile"; then
+    echo "error: $name is not running" >&2
+    exit 1
+fi
+
+if command -v minicom >/dev/null; then
+    exec minicom -D "unix#$sockfile"
+elif command -v socat >/dev/null; then
+    exec socat -,rawer,escape=0x1d "unix-connect:$sockfile"
+else
+    echo "error: need minicom or socat to attach to VM console" >&2
+    exit 2
+fi

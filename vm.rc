@@ -1,0 +1,17 @@
+#!/sbin/openrc-run
+
+depend() {
+
+}
+
+if test "${SVCNAME%%.*}" != "${SVCNAME}"; then
+	vm="${SVCNAME#*.}"
+	name="qemu VM: $vm"
+	command="vm-launch"
+	command_args="$vm"
+	supervisor=supervise-daemon
+
+	attach() {
+		vm-attach "$vm"
+	}
+fi

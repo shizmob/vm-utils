@@ -41,7 +41,7 @@ pidfile() {
 }
 
 consolefile() {
-	echo "$(rundir "$1")/monitor.sock"
+	echo "$(rundir "$1")/console.sock"
 }
 
 virtiofsfile() {

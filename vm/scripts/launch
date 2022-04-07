@@ -42,16 +42,21 @@ rm -f "$rundir"/*.sock
 
 cleanup() {
 	set +e
-	"$rootdir"/scripts/ifdown 'vm-$name'
+	"$rootdir"/scripts/ifdown "vm-$name"
 	jobs -p | xargs -r kill
 	rm -r "$rundir"
-	exit
+	trap - EXIT
+	exit $1
 }
-trap cleanup INT TERM QUIT HUP
+trap cleanup INT TERM QUIT HUP EXIT
 
 # Setup shares.
 if [ -n "$conf_shares" ]; then
 	set -- "$@" -object memory-backend-memfd,id=mem,size="$param_m",share=on -numa node,memdev=mem
+	case "$param_machine" in
+	microvm*) vhostdev=vhost-user-fs-device;;
+	*)        vhostdev=vhost-user-fs-pci;;
+	esac
 	while IFS=: read -r tag source; do
 		sockfile="$(virtiofsfile "$name" "$tag")"
 		/usr/lib/qemu/virtiofsd \
@@ -63,7 +68,7 @@ if [ -n "$conf_shares" ]; then
 			-f &
 		set -- "$@" \
 			-chardev socket,id=virtiofs-$tag,path="$sockfile" \
-			-device vhost-user-fs-device,chardev=virtiofs-$tag,tag=$tag
+			-device "$vhostdev",chardev=virtiofs-$tag,tag=$tag
 	done <<EOF
 $conf_shares
 EOF
@@ -73,6 +78,6 @@ fi
 tapdev=$("$rootdir/scripts/ifup" vm-"$name")
 test $? -ne 0 && exit 1
 
-# Launch qemu.
-"$@" 3<>"$tapdev"
-cleanup
+# Launch qemu. The backgrounding and waiting is needed as qemu otherwise messes up signals.
+"$@" 3<>"$tapdev" &
+wait $!

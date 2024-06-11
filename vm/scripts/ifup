@@ -18,12 +18,27 @@ $conf
 EOF
 
 hostif="${conf_net_hostif:-eth0}"
+vmif="${conf_net_vmif:-vm}"
+
+if ! test -e /sys/class/net/"$vmif" ; then
+	# big heads-up to https://unix.stackexchange.com/a/625562
+	ip link add "$vmif" link "$hostif" up type macvlan mode bridge
+	ip -4 addr add $(ip -br -4 addr show dev "$hostif" scope global | head -n 1 | awk '{print $3}') dev "$vmif" noprefixroute
+	ip -6 addr add $(ip -br -6 addr show dev "$hostif" scope global | head -n 1 | awk '{print $3}') dev "$vmif" noprefixroute
+fi
 
 if ! test -e /sys/class/net/"$device" ; then
-	ip link add link "$hostif" name "$device" address "$conf_net_mac" type macvtap mode bridge
-	ip link set dev "$device" up
+	ip link add "$device" link "$hostif" up address "$conf_net_mac" type macvtap mode bridge
 	sysctl -w net.ipv4.conf."$device".forwarding=1 >/dev/null
 	sysctl -w net.ipv6.conf."$device".forwarding=1 >/dev/null
 fi
 
+ip route flush dev "$device"
+ip link set dev "$device" allmulticast on
+if test -n "$conf_net_ipv4"; then
+	ip -4 addr add "$conf_net_ipv4" dev "$device" || true
+fi
+if test -n "$conf_net_ipv6"; then
+	ip -6 route add "$conf_net_ipv6" dev "$vmif" || true
+fi
 echo /dev/tap$(cat /sys/class/net/"$device"/ifindex)

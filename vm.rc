@@ -10,7 +10,15 @@ if test "${SVCNAME%%.*}" != "${SVCNAME}"; then
 	command="vm-launch"
 	command_args="$vm"
 	supervisor=supervise-daemon
+	output_log="/run/vm/$vm/boot.log"
+	error_log="/run/vm/$vm/boot.log"
 	extra_commands="attach"
+
+	start_pre() {
+		checkpath -m 0700 -o root:root -d "/run/vm"
+		checkpath -m 0700 -o root:root -d "/run/vm/$vm"
+		checkpath -m 0600 -o root:root -F $(printf "%s\n%s" "$output_log" "$error_log" | uniq)
+	}
 
 	attach() {
 		vm-attach "$vm"

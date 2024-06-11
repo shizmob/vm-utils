@@ -43,8 +43,8 @@ rm -f "$rundir"/*.sock
 cleanup() {
 	set +e
 	"$rootdir"/scripts/ifdown "vm-$name"
-	jobs -p | xargs -r kill
-	rm -r "$rundir"
+	jobs -p | xargs -r kill || true
+	[ -z "$rundir" ] || rm -r "$rundir"/*
 	trap - EXIT
 	exit $1
 }

@@ -11,7 +11,7 @@ conf="$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")"
 
 # Set configuration
 while read -r k v ; do
-        eval "conf_$k=$v"
+        eval "conf_$k='$v'"
 done <<EOF
 $conf
 EOF

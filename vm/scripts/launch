@@ -70,7 +70,7 @@ if [ -n "$conf_shares" ]; then
 			-chardev socket,id=virtiofs-$tag,path="$sockfile" \
 			-device "$vhostdev",chardev=virtiofs-$tag,tag=$tag
 	done <<EOF
-$conf_shares
+$(printf "%s\n" $conf_shares)
 EOF
 fi
 

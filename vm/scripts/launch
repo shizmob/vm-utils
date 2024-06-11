@@ -10,12 +10,13 @@ consolefile="$(consolefile "$name")"
 
 # Read files.
 file="$(basename "$name.conf")"
-conf="$(resolve_includes "$rootdir/conf" "$rootdir/conf/$file")"
-params="$(resolve_includes "$rootdir/include" "$rootdir/machines.d/$file")"
+machine="$(resolve_includes "$rootdir/include" "$rootdir/machines.d/$file")"
+conf="$(printf "%s\n" "$machine" | grep '^@')"
+params="$(printf "%s\n" "$machine" | grep -v '^@')"
 
 # Set configuration
 while read -r k v ; do
-	eval "conf_$k='$v'"
+	eval "conf_${k#@}="\""$v"\"
 done <<EOF
 $conf
 EOF
@@ -24,7 +25,7 @@ EOF
 params="$(expand "$params")"
 
 # Build command line.
-set -- qemu-system-x86_64
+set -- qemu-system-${conf_arch:-x86_64}
 
 while read -r k v ; do
         set -- "$@" "-$k"
